@@ -1,47 +1,34 @@
-# Sierra GenAI Engineering
+# Sierra Napier — GenAI Engineering Portfolio
 
-> **Generative AI Engineer | LLM Pipelines · RAG Systems · Prompt Engineering · AI-Ready Environments**
+> **Role**: GenAI Engineer | **Focus**: LLM evaluation, RAG pipelines, document intelligence
 
-I'm an AI engineer who deploys LLMs that actually work in production. I built the RATS project at DC Government using LLMs and predictive analytics to reduce rodent complaints by 30%. I fine-tuned classification models for FOIA automation and internal document processing. I designed AI-ready environments that reduced model deployment time by 35%. I know the difference between a cool demo and a system that scales — and I build the second one.
+## 📊 Real Data Sources
 
-**What you'll find here:**
-- **LLM pipelines** — fine-tuning, serving, monitoring, cost optimization
-- **RAG systems** — vector databases, embedding pipelines, retrieval evaluation
-- **Prompt engineering** — chain-of-thought, structured outputs, safety guardrails
-- **AI infrastructure** — MLOps for LLMs, caching, batch processing, observability
+| Dataset | Source | Records | Use Case |
+|---------|--------|---------|----------|
+| **arXiv Papers** | arXiv.org | 2M+ papers | Research trend analysis, embedding benchmarks |
+| **SCOTUS Opinions** | CourtListener | 30K+ opinions | Legal document summarization, precedent analysis |
+| **Wikipedia** | Wikimedia | 6M+ articles | RAG evaluation, knowledge grounding |
+| **PubMed** | NCBI | 35M+ citations | Biomedical QA, evidence synthesis |
 
----
+## 🏗️ Architecture
 
-## Projects
+```
+├── data/               # Document corpora (public)
+├── notebooks/          # LLM evaluation & RAG pipelines
+├── src/                # Embedding models, vector stores
+├── pipelines/          # End-to-end RAG systems
+└── docs/               # Model cards & evaluation reports
+```
 
-| Project | Domain | Techniques | Status |
-|---------|--------|-----------|--------|
-| `llm-document-classification` | Public Sector | BERT fine-tuning, zero-shot LLM, FastAPI serving, batch inference | 🔧 Building |
-| `rag-knowledge-base` | Enterprise | Vector DB (Chroma/Pinecone), embeddings, retrieval, evaluation | 🔧 Building |
-| `ai-ready-mlops` | Infrastructure | Docker, model versioning, A/B testing, monitoring, cost tracking | 🔧 Building |
+## 🚀 Projects
 
----
-
-## Tech Stack
-
-**Languages:** Python · SQL  
-**LLMs:** OpenAI · Anthropic · Hugging Face · LangChain · LlamaIndex  
-**RAG:** Chroma · Pinecone · Weaviate · sentence-transformers  
-**Serving:** FastAPI · Docker · Kubernetes · AWS SageMaker  
-**MLOps:** MLflow · Weights & Biases · Prometheus · Grafana  
-**Cloud:** Azure OpenAI · AWS Bedrock · GCP Vertex AI
+| # | Project | Data | Techniques | Status |
+|---|---------|------|------------|--------|
+| 1 | Legal Document RAG | SCOTUS Opinions | Chunking, embedding, reranking | 🟡 Skeleton |
+| 2 | Research Trend Analysis | arXiv | Topic modeling, citation networks | 🟡 Skeleton |
+| 3 | LLM Evaluation Framework | Multiple | MMLU, HumanEval, custom benchmarks | 🟡 Skeleton |
 
 ---
 
-## About Me
-
-- **Current:** Manager, Data Strategy & Service Optimization @ WMATA
-- **Past:** Lead Data Manager @ DC Government · DEI Data Analyst @ Akin Gump
-- **Education:** MPA · MPH · PMP (in progress) · CDMP (in progress)
-- **Contact:** [LinkedIn](https://linkedin.com/in/sierran) · [Email](mailto:s.napier430@gmail.com)
-
----
-
-## License
-
-MIT
+**License**: MIT | **Last Updated**: 2026-05-10
