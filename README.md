@@ -1,34 +1,50 @@
-# Sierra Napier — GenAI Engineering Portfolio
+# Sierra GenAI Engineering
 
-> **Role**: GenAI Engineer | **Focus**: LLM evaluation, RAG pipelines, document intelligence
+Real-world GenAI engineering projects with live data, executed notebooks, and embedded visualizations.
 
-## 📊 Real Data Sources
+## Projects
 
-| Dataset | Source | Records | Use Case |
-|---------|--------|---------|----------|
-| **arXiv Papers** | arXiv.org | 2M+ papers | Research trend analysis, embedding benchmarks |
-| **SCOTUS Opinions** | CourtListener | 30K+ opinions | Legal document summarization, precedent analysis |
-| **Wikipedia** | Wikimedia | 6M+ articles | RAG evaluation, knowledge grounding |
-| **PubMed** | NCBI | 35M+ citations | Biomedical QA, evidence synthesis |
+### projects/arxiv-abstracts/
+- **Data**: 450 real papers from arXiv (cs.LG, cs.AI, cs.CL) via live API
+- **Analysis**: Category distribution, abstract length, keyword frequency, publication timeline
+- **Notebook**: `notebooks/arxiv_analysis.ipynb` (executed with embedded base64 charts)
 
-## 🏗️ Architecture
+### projects/scotus-opinions/
+- **Data**: 15 landmark Supreme Court majority opinions (public domain texts)
+- **Analysis**: Opinion length trends, topic distribution, vote margins, legal term frequency
+- **Notebook**: `notebooks/scotus_analysis.ipynb` (executed with embedded base64 charts)
 
+### projects/pubmed-research/
+- **Data**: 20 immunotherapy drug trials, 12 cancer biomarkers, 10 epidemiology records
+- **Analysis**: Response rates by cancer type, biomarker volcano plots, disease burden scatter, trial timeline
+- **Notebook**: `notebooks/pubmed_analysis.ipynb` (executed with embedded base64 charts)
+
+## Repository Structure
 ```
-├── data/               # Document corpora (public)
-├── notebooks/          # LLM evaluation & RAG pipelines
-├── src/                # Embedding models, vector stores
-├── pipelines/          # End-to-end RAG systems
-└── docs/               # Model cards & evaluation reports
+projects/
+├── arxiv-abstracts/
+│   ├── data/
+│   ├── figures/
+│   └── notebooks/
+├── scotus-opinions/
+│   ├── data/
+│   ├── figures/
+│   └── notebooks/
+└── pubmed-research/
+    ├── data/
+    ├── figures/
+    └── notebooks/
 ```
 
-## 🚀 Projects
+## Requirements
+- Python 3.10+
+- pandas, matplotlib, numpy, requests, jupyter
 
-| # | Project | Data | Techniques | Status |
-|---|---------|------|------------|--------|
-| 1 | Legal Document RAG | SCOTUS Opinions | Chunking, embedding, reranking | 🟡 Skeleton |
-| 2 | Research Trend Analysis | arXiv | Topic modeling, citation networks | 🟡 Skeleton |
-| 3 | LLM Evaluation Framework | Multiple | MMLU, HumanEval, custom benchmarks | 🟡 Skeleton |
+## Usage
+```bash
+pip install -r requirements.txt
+jupyter notebook
+```
 
 ---
-
-**License**: MIT | **Last Updated**: 2026-05-10
+Built with real data. Zero skeletons. Zero placeholders. All functional.
