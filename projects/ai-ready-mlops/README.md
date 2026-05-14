@@ -1,39 +1,35 @@
-## Project 3: AI-Ready MLOps
+# AI-Ready MLOps Framework
+## Production ML Model Lifecycle Management
 
-**Context:** Production MLOps infrastructure for LLM and ML model deployment inspired by WMATA's AI-ready environments.
+**🎯 Real-World Context:** Production ML systems fail silently. This framework demonstrates the operational infrastructure needed to keep ML models reliable — automated retraining, drift detection, A/B testing, and one-click rollback.
 
-**Dataset:**
-- Simulated model performance metrics
-- [MLflow tracking data](https://mlflow.org/)
-- [Weights & Biases experiments](https://wandb.ai/)
+**💼 Business Problem:** ML models in production suffer from model decay, undetected drift, rollback nightmares, and no performance visibility. This framework addresses all four.
 
-**Objective:** Build reproducible MLOps infrastructure for deploying, monitoring, and maintaining ML and LLM models in production with cost tracking and A/B testing.
+**🔧 Technical Solution:**
+- **Data Sources:**
+  - [U.S. Census ACS API](https://api.census.gov/data/2022/acs/acs5) — state-level demographics
+  - [BLS Public Data API](https://api.bls.gov/publicAPI/v2/timeseries/data/) — employment time series
+  - [arXiv API](http://export.arxiv.org/api/query) — CS paper abstracts
+- **Stack:** Python, scikit-learn, SQLite, scipy, Streamlit
+- **Pipeline:** Train → Register → Monitor → Detect Drift → Retrain → A/B Test → Promote
 
-**Techniques:**
-- Docker containerization for model serving
-- MLflow experiment tracking and model registry
-- A/B testing framework for model comparison
-- Monitoring with Prometheus / Grafana
-- Cost tracking for LLM API usage
-- Automated retraining triggers
+**📊 Results:**
+- 3 production models versioned with full lineage in SQLite registry
+- Automated weekly retraining with 2% regression auto-rejection gate
+- Statistical drift detection (KS test + PSI) with alert thresholds
+- A/B testing with traffic routing and significance validation
+- Inference monitoring: p50/p95/p99 latency, cost per 1K inferences
 
-**Business Impact:**
-- 35% reduction in time-to-deployment for ML models
-- Standardized ML workflow across teams
-- Reduced model serving costs through caching and batching
-- Proactive model degradation detection
+**🏛️ Production Parallels:** Stripe (fraud model versioning), Netflix (A/B testing), Uber (drift detection)
 
-**Files:**
-- `notebooks/01_mlops_basics.ipynb`
-- `notebooks/02_mlflow_tracking.ipynb`
-- `notebooks/03_ab_testing.ipynb`
-- `notebooks/04_monitoring.ipynb`
-- `src/model_container.py`
-- `src/mlflow_tracker.py`
-- `src/ab_test_engine.py`
-- `src/cost_monitor.py`
-- `src/retrain_trigger.py`
-- `docker/Dockerfile`
-- `docker/docker-compose.yml`
+**🚀 How to Run:**
+```bash
+pip install -r requirements.txt
+python -c "from src.retrain_pipeline import main; main()"
+python src/drift_detector.py
+streamlit run dashboard.py
+```
 
-**Status:** 🔧 In development
+**📄 License:** MIT
+
+**About the Author:** Sierra Napier, MPA/MPH — AI Architect & Data Science Leader. [LinkedIn](https://linkedin.com/in/sierran)
