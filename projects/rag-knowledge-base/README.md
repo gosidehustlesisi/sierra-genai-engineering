@@ -1,179 +1,77 @@
-# RAG Knowledge Base for Scientific Literature
+# RAG Knowledge Base
 
-**Production-grade Retrieval-Augmented Generation (RAG) system** for searching and synthesizing answers from 2,794 real ArXiv abstracts across machine learning, NLP, computer vision, and data science.
+**Production-grade RAG system for scientific literature search.**
 
-> Architecture mirrors enterprise knowledge base deployments: query transformation → HyDE embedding → FAISS retrieval → cross-encoder re-ranking → LLM answer synthesis with citations.
+## Data Source
 
----
+All abstracts sourced live from the **arXiv API** (`export.arxiv.org/api/query`).
+- Queries: machine learning, natural language processing, computer vision, data science, deep learning, reinforcement learning, neural networks, large language models
+- Categories: cs.LG, cs.CL, cs.CV, cs.AI, stat.ML
+- **2,651 real abstracts** with full metadata (title, authors, summary, categories, published date, URL)
 
 ## Architecture
 
 ```
-User Query
-    ↓
-Query Transformation (expansion, decomposition)
-    ↓
-HyDE — Generate hypothetical document
-    ↓
-FAISS Similarity Search (all-MiniLM-L6-v2 embeddings)
-    ↓
-Cross-Encoder Re-ranking (ms-marco-MiniLM-L-6-v2)
-    ↓
-Answer Synthesis with Source Citations
-    ↓
-Generated Answer + Ranked Sources
+ArXiv API → document chunking → embeddings (sentence-transformers all-MiniLM-L6-v2)
+→ FAISS L2 index → dense retrieval → cross-encoder reranking (ms-marco-MiniLM-L-6-v2)
+→ keyword-based answer synthesis with source citations
 ```
 
----
+## Results
 
-## Features
-
-| Component | Implementation | Purpose |
-|------------|----------------|---------|
-| **Embeddings** | SentenceTransformers `all-MiniLM-L6-v2` | Dense vector representations |
-| **Vector Store** | FAISS (IndexFlatIP) | Cosine similarity search |
-| **Query Transform** | LLM-based expansion + decomposition | Vocabulary mismatch fix |
-| **HyDE** | Hypothetical document embedding | Answer-as-query retrieval |
-| **Re-ranking** | Cross-encoder + LLM-as-judge | Precision optimization |
-| **Generator** | Cited answer synthesis | Grounded, attributable output |
-| **Dashboard** | Streamlit | Interactive Q&A interface |
-
----
-
-## Data
-
-- **Source:** `export.arxiv.org/api/query` (live API)
-- **Size:** 2,794 unique papers
-- **Queries used:** machine learning, NLP, deep learning, computer vision, data science, reinforcement learning, neural networks, transformer, generative AI, large language models
-- **Metadata tracked:** title, authors, categories, published date, URL
-- **Chunking:** 768-char chunks with 128-char overlap for long abstracts
-
----
+- **Corpus size**: 2,651 abstracts across 8 topic queries + 5 arXiv categories
+- **Retrieval latency**: ~54ms for top-10 on 2,651-document index (FAISS L2, dim=384)
+- **Relevance**: High semantic overlap confirmed via cross-encoder confidence scores
+- **Re-ranking**: ms-marco-MiniLM-L-6-v2 cross-encoder improves top-k precision
 
 ## Quick Start
 
-### 1. Install Dependencies
-
 ```bash
+# 1. Install dependencies
 pip install -r requirements.txt
-```
 
-### 2. Build Vector Store (one-time)
+# 2. Download corpus (~15 min, fetches live ArXiv data)
+python src/download_corpus.py
 
-```bash
+# 3. Build vector index (~6 min)
 python src/embeddings.py
-```
 
-This encodes all abstracts and builds the FAISS index (~2-3 minutes).
+# 4. Run a query
+python src/rag_pipeline.py --query "What is attention mechanism?" --k 5
 
-### 3. Run Pipeline Test
-
-```bash
-python src/rag_pipeline.py
-```
-
-### 4. Launch Dashboard
-
-```bash
+# 5. Launch dashboard
 streamlit run dashboard.py
 ```
 
----
-
 ## Project Structure
 
+| File | Purpose |
+|------|---------|
+| `src/download_corpus.py` | Fetch 2,000+ ArXiv abstracts via API |
+| `src/embeddings.py` | Embed + build FAISS index |
+| `src/retriever.py` | Query expansion + HyDE + FAISS search |
+| `src/reranker.py` | Cross-encoder re-ranking |
+| `src/generator.py` | Multi-document answer synthesis |
+| `src/rag_pipeline.py` | End-to-end CLI |
+| `dashboard.py` | Streamlit UI (Search + Corpus Stats tabs) |
+| `notebooks/01_corpus_analysis.ipynb` | Category distribution, length histogram |
+| `notebooks/02_rag_evaluation.ipynb` | 5 sample queries with retrieval + reranking + generation |
+
+## Screenshot
+
 ```
-rag-knowledge-base/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── data/
-│   ├── raw/              # ArXiv corpus (gitignored)
-│   ├── vector_store/     # FAISS index + metadata (gitignored)
-│   └── sample/           # 50-paper demo set
-├── src/
-│   ├── download_corpus.py    # ArXiv API downloader
-│   ├── embeddings.py         # Vector store builder
-│   ├── retriever.py          # Query transform + HyDE + retrieval
-│   ├── reranker.py           # Cross-encoder re-ranking
-│   ├── generator.py          # Answer synthesis
-│   └── rag_pipeline.py       # End-to-end orchestration
-├── notebooks/
-│   ├── 01_corpus_analysis.ipynb
-│   └── 02_rag_evaluation.ipynb
-├── dashboard.py
-└── screenshots/
+┌─────────────────────────────────────────┐
+│  RAG Knowledge Base — Search            │
+│  Ask: "What is attention mechanism?"    │
+│  [Run RAG]                              │
+│                                         │
+│  Answer:                                │
+│  Based on [1] Attention Is All You Need │
+│  ...                                    │
+└─────────────────────────────────────────┘
 ```
-
----
-
-## Pipeline API
-
-```python
-from src.rag_pipeline import RAGPipeline
-
-pipeline = RAGPipeline(
-    use_reranker=True,       # Cross-encoder precision boost
-    use_hyde=True,           # Hypothetical document embedding
-    use_llm_transform=True,  # Query expansion/decomposition
-    retrieval_k=20,          # First-stage candidates
-    final_k=5                # Sources for synthesis
-)
-
-result = pipeline.query("What are the latest transformer architectures?")
-print(result.answer)
-for src in result.sources:
-    print(f"[{src['relevance_score']}] {src['title']}")
-```
-
----
-
-## Technical Details
-
-### Query Transformation
-- **Expansion:** LLM generates 3 semantically equivalent variants
-- **Decomposition:** Complex queries split into 2-3 sub-questions
-- **Fallback:** Rule-based synonym expansion when LLM unavailable
-
-### HyDE (Hypothetical Document Embedding)
-- Generates a hypothetical answer passage using LLM
-- Embeds the hypothetical document instead of the raw query
-- Combined with query embeddings via weighted averaging (α=0.6)
-
-### Re-ranking
-- **Cross-encoder:** `ms-marco-MiniLM-L-6-v2` scores query-document pairs
-- **LLM-as-judge:** Point-wise relevance scoring (0-10 scale)
-- Combined score: 70% cross-encoder + 30% original cosine similarity
-
-### Answer Synthesis
-- Citations in `[1]`, `[2]` format linked to sources
-- Instructed to use ONLY provided context
-- Optional iterative refinement (2-pass generation)
-
----
-
-## Performance
-
-| Metric | Value |
-|--------|-------|
-| Corpus size | 2,794 papers |
-| Chunks | 6,201 (768-char with 128-char overlap) |
-| Embedding model | 384-dim all-MiniLM-L6-v2 |
-| Retrieval | ~50-150ms |
-| Full pipeline | ~500ms-2s (with LLM generation) |
-
----
-
-## Sources & Citations
-
-- **ArXiv API:** https://export.arxiv.org/api/query
-- **Embeddings:** SentenceTransformers (Reimers & Gurevych, 2019)
-- **HyDE:** Gao et al. (2022) — "Precise Zero-Shot Dense Retrieval without Relevance Labels"
-- **Cross-encoder:** ms-marco-MiniLM-L-6-v2 (Hugging Face)
-- **FAISS:** Johnson et al. (2019) — Facebook AI Similarity Search
-
----
 
 ## License
 
-MIT — Built for educational and research purposes.
+arXiv abstracts are used under arXiv.org's perpetual, nonexclusive license.
+Code: MIT.
