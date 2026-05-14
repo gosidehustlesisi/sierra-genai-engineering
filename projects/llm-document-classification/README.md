@@ -1,36 +1,104 @@
-## Project 1: LLM Document Classification
+# llm-document-classification
 
-**Context:** Public-sector document classification inspired by DC Government's FOIA automation and RATS (Rodent Abatement Tracking System) using LLMs.
+## 🎯 Real-World Context
+Document classification pipeline for multi-domain text (legal, scientific, medical, financial). Architecture mirrors production NLP systems deployed for municipal service request triage — specifically the CapSTAT / RatSTAT methodology used by the District of Columbia to automatically classify, route, and prioritize 311 service requests across agencies (DCRA, DOH, DPW, DDOT).
 
-**Dataset:**
-- [Federal Register documents](https://www.federalregister.gov/)
-- [DC 311 Service Requests](https://opendata.dc.gov/)
-- [MuckRock FOIA requests](https://www.muckrock.com/)
-- Simulated internal agency documents
+This project demonstrates how the same multi-class text classification + confidence scoring approach scales from civic operations (rodent complaints, illegal dumping, parking violations) to enterprise document intelligence (scientific abstracts, medical literature, legal opinions, financial filings).
 
-**Objective:** Build production-grade LLM pipelines for document classification, entity extraction, and automated routing with >90% accuracy.
+## 💼 Business Problem
+Organizations process thousands of unstructured documents daily — research papers, medical abstracts, legal opinions, SEC filings — with manual triage that takes 24-72 hours per batch. Delayed classification creates:
+- Missed insights in competitive intelligence (financial docs)
+- Delayed legal discovery (case law review)
+- Slowed research synthesis (scientific literature)
+- Inefficient policy triage (public health abstracts)
 
-**Techniques:**
-- BERT fine-tuning for domain-specific classification
-- GPT-4 / Claude zero-shot classification with structured outputs
-- Prompt engineering with chain-of-thought reasoning
-- FastAPI serving with request batching and caching
+**Production Parallel:** DC's CapSTAT program reduced rodent complaint response coordination time by 35% through automated classification and geospatial targeting. This pipeline replicates that architecture for general document domains.
 
-**Business Impact:**
-- 30% reduction in rodent complaint resolution time (RATS)
-- 40% reduction in FOIA response timelines
-- Automated metadata classification across 7 departments
-- 35% faster model deployment via AI-ready environments
+## 🔧 Technical Solution
+- **Data Sources:** Live public APIs — no synthetic data
+  - [ArXiv API](https://arxiv.org/help/api/index) — scientific/technical/financial abstracts
+  - [PubMed E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25500/) — medical/health abstracts
+  - [Wikipedia REST API](https://www.mediawiki.org/wiki/API:Main_page) — legal/financial encyclopedia articles
+- **Stack:** Python 3.10+, Pandas, scikit-learn, spaCy, Streamlit, transformers (optional)
+- **Pipeline:** Live API Extract → Clean → TF-IDF Vectorize → Ensemble Classify → Evaluate → Dashboard
+- **Key Features:**
+  - Multi-class text classification (4 categories: scientific, medical, legal, financial)
+  - Confidence scoring per prediction
+  - TF-IDF + Random Forest baseline (explainable, fast)
+  - Optional DistilBERT fine-tuning (cutting-edge LLM skills)
+  - Interactive Streamlit dashboard
 
-**Files:**
-- `notebooks/01_document_exploration.ipynb`
-- `notebooks/02_bert_finetuning.ipynb`
-- `notebooks/03_llm_zero_shot.ipynb`
-- `notebooks/04_prompt_engineering.ipynb`
-- `src/bert_classifier.py`
-- `src/llm_pipeline.py`
-- `src/prompt_templates.py`
-- `src/serve.py`
-- `docker/Dockerfile`
+## 📊 Results
+- **Corpus:** 991 real documents from 3 live APIs
+  - ArXiv: 358 scientific/financial abstracts
+  - PubMed: 414 medical abstracts  
+  - Wikipedia: 219 legal/financial articles
+- **Classification Accuracy:**
+  - Logistic Regression: **89.45%** (F1-macro: 0.864)
+  - Random Forest: **86.43%** (F1-macro: 0.832)
+- **Per-Class F1 (Logistic Regression):**
+  - Medical: **0.976** | Scientific: **0.879** | Legal: **0.900** | Financial: **0.702**
+- **Pipeline:** End-to-end orchestration with one command
+- **Dashboard:** Interactive Streamlit demo with live predictions
 
-**Status:** 🔧 In development
+## 🚀 How to Run
+
+```bash
+# Clone and setup
+git clone https://github.com/gosidehustlesisi/sierra-genai-engineering.git
+cd sierra-genai-engineering/projects/llm-document-classification
+pip install -r requirements.txt
+
+# Run full pipeline (downloads live data + trains + evaluates)
+python src/run_pipeline.py
+
+# Or run steps individually
+python src/download_documents.py   # Fetch live corpus
+python src/clean_data.py           # Text cleaning
+python src/feature_engineering.py  # TF-IDF + label encoding
+python src/train_classifier.py     # Train RF + LR + optional DistilBERT
+python src/evaluate_model.py       # Metrics + confusion matrices
+
+# Launch dashboard
+streamlit run dashboard.py
+```
+
+## 📁 File Structure
+```
+llm-document-classification/
+├── README.md
+├── requirements.txt
+├── .gitignore
+├── data/
+│   ├── raw/              # Real downloaded docs (gitignored)
+│   ├── processed/        # Features + labels (gitignored)
+│   └── sample/           # 100-row demo CSV for README
+├── src/
+│   ├── download_documents.py    # Live API client (ArXiv + PubMed + Wikipedia)
+│   ├── clean_data.py            # Text cleaning pipeline
+│   ├── feature_engineering.py # TF-IDF / embeddings
+│   ├── train_classifier.py      # Model training (RF + LR + DistilBERT)
+│   ├── evaluate_model.py        # Metrics + confusion matrix plots
+│   └── run_pipeline.py          # End-to-end orchestration
+├── notebooks/
+│   ├── 01_eda.ipynb             # Exploratory data analysis
+│   └── 02_modeling.ipynb        # Model development
+├── dashboard.py                 # Streamlit interactive demo
+├── models/                      # Saved models (gitignored)
+├── reports/                     # Metrics + plots (gitignored)
+└── screenshots/                 # PNG images for README
+```
+
+## 🏛️ Production Parallels
+The architecture mirrors production NLP systems deployed for:
+- **Municipal 311 triage** (CapSTAT/RatSTAT) — classify → route → prioritize
+- **Legal discovery** — classify case law by domain and relevance
+- **Scientific literature monitoring** — auto-categorize preprints for research teams
+- **Financial compliance** — triage SEC filings and regulatory documents
+- **Healthcare policy** — classify PubMed abstracts for evidence synthesis
+
+## 📄 License
+MIT — Open source for portfolio demonstration
+
+---
+**About the Author:** Sierra Napier, MPA — Senior Data & AI Leader building enterprise analytics and AI solutions across government, transportation, and financial sectors. [LinkedIn](https://linkedin.com/in/sierran)
