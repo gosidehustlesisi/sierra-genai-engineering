@@ -1,0 +1,29 @@
+{
+  "total_papers": 2794,
+  "queries_used": [
+    "machine learning",
+    "natural language processing",
+    "deep learning",
+    "computer vision",
+    "data science",
+    "reinforcement learning",
+    "neural networks",
+    "transformer",
+    "generative AI",
+    "large language models"
+  ],
+  "top_categories": [
+    ["cs.LG", 752],
+    ["cs.CL", 491],
+    ["cs.CV", 473],
+    ["cs.AI", 157],
+    ["cs.CY", 123],
+    ["stat.ML", 81],
+    ["cs.NE", 79],
+    ["cs.HC", 77],
+    ["astro-ph.IM", 37],
+    ["eess.IV", 29]
+  ],
+  "date_downloaded": "2026-05-14 10:45:18",
+  "source": "export.arxiv.org/api/query"
+}
