@@ -1,161 +1,65 @@
-#!/usr/bin/env python3
 """
-Generator Module
-Answer synthesis from retrieved documents with citations.
+Source: Re-ranked retrieval results
+Multi-document answer synthesis with source citations.
+Uses keyword-based extractive summarization (no LLM API required).
 """
-
-import os
 import re
-from typing import List, Tuple, Dict
-
-# LLM API
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-KIMI_API_KEY = os.getenv("KIMI_API_KEY")
+from collections import Counter
 
 
-def get_llm_client():
-    """Get LLM client from available API keys."""
-    if OPENAI_API_KEY:
-        from openai import OpenAI
-        return OpenAI(api_key=OPENAI_API_KEY)
-    elif KIMI_API_KEY:
-        from openai import OpenAI
-        return OpenAI(api_key=KIMI_API_KEY, base_url="https://api.moonshot.cn/v1")
-    return None
+def keyword_summarize(text, max_sentences=3):
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    if len(sentences) <= max_sentences:
+        return " ".join(sentences)
+    words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
+    stop = {"this", "that", "with", "from", "they", "have", "been", "their", "than", "also", "using", "based", "such", "show", "used", "proposed", "paper", "model", "method", "results"}
+    freqs = Counter(w for w in words if w not in stop)
+    scored = []
+    for s in sentences:
+        score = sum(freqs.get(w, 0) for w in re.findall(r'\b[a-zA-Z]{4,}\b', s.lower()))
+        scored.append((score, s))
+    scored.sort(reverse=True)
+    top = [s for _, s in scored[:max_sentences]]
+    order = {s: i for i, s in enumerate(sentences)}
+    top.sort(key=lambda s: order.get(s, 999))
+    return " ".join(top)
 
 
-def format_context(chunks: List[Tuple[str, Dict, float]]) -> str:
-    """Format retrieved chunks with citations for the prompt."""
-    context_parts = []
-    for i, (chunk, meta, score) in enumerate(chunks, 1):
-        title = meta.get("title", "Untitled")
-        authors = ", ".join(meta.get("authors", [])[:2])
-        published = meta.get("published", "")[:4]  # Year only
-        url = meta.get("url", "")
-        
-        citation = f"[{i}] {title}"
-        if authors:
-            citation += f" — {authors}"
-        if published:
-            citation += f" ({published})"
-        
-        context_parts.append(f"{citation}\n{chunk}\nSource: {url}")
-    
-    return "\n\n".join(context_parts)
+def generate_answer(query, docs):
+    if not docs:
+        return "No relevant documents found."
+    cited = []
+    for i, d in enumerate(docs, 1):
+        summary = keyword_summarize(d["summary"], max_sentences=2)
+        authors = ", ".join(d["authors"][:2]) + (" et al." if len(d["authors"]) > 2 else "")
+        cited.append({
+            "num": i,
+            "title": d["title"],
+            "authors": authors,
+            "url": d["url"],
+            "summary": summary,
+        })
+
+    parts = [f"Based on [{c['num']}] {c['title']} ({c['authors']})" for c in cited]
+    intro = " and ".join(parts) + ", the answer is:\n"
+    body = "\n\n".join([f"[{c['num']}] {c['summary']}" for c in cited])
+    refs = "\n\nSources:\n" + "\n".join([f"[{c['num']}] {c['title']} — {c['url']}" for c in cited])
+    return intro + body + refs
 
 
-def synthesize_answer(
-    query: str,
-    chunks: List[Tuple[str, Dict, float]],
-    temperature: float = 0.3,
-    max_tokens: int = 500
-) -> str:
-    """
-    Synthesize answer from retrieved chunks with citations.
-    
-    Args:
-        query: User question
-        chunks: List of (chunk, metadata, score) from retriever/reranker
-        temperature: Generation temperature
-        max_tokens: Max output tokens
-    
-    Returns:
-        Generated answer with citations
-    """
-    client = get_llm_client()
-    if not client:
-        # Fallback: return top chunk summary
-        if not chunks:
-            return "No relevant documents found."
-        top = chunks[0]
-        return f"Based on the most relevant source: {top[0][:300]}..."
-    
-    context = format_context(chunks)
-    
-    prompt = f"""Answer the question using ONLY the provided context.
-Cite sources with [number] format after each claim.
-If the context doesn't contain enough information, say so.
-Be concise but thorough.
-
-Context:
-{context}
-
-Question: {query}
-
-Answer:"""
-    
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini" if OPENAI_API_KEY else "kimi-latest",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"Answer synthesis failed: {e}")
-        return "Error generating answer."
-
-
-def iterative_synthesis(
-    query: str,
-    chunks: List[Tuple[str, Dict, float]],
-    iterations: int = 2
-) -> str:
-    """Multi-pass answer refinement."""
-    # Pass 1: Generate draft
-    draft = synthesize_answer(query, chunks, temperature=0.5)
-    
-    if iterations <= 1:
-        return draft
-    
-    # Pass 2: Refine
-    client = get_llm_client()
-    if not client:
-        return draft
-    
-    context = format_context(chunks)
-    
-    refine_prompt = f"""Improve this answer for accuracy, completeness, and clarity.
-Ensure all claims are supported by the context below.
-Add citations [number] where missing.
-
-Context:
-{context}
-
-Draft Answer: {draft}
-
-Improved Answer:"""
-    
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini" if OPENAI_API_KEY else "kimi-latest",
-            messages=[{"role": "user", "content": refine_prompt}],
-            temperature=0.2,
-            max_tokens=600
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"Refinement failed: {e}")
-        return draft
-
-
-def extract_citations(answer: str) -> List[int]:
-    """Extract citation numbers from an answer."""
-    citations = re.findall(r'\[(\d+)\]', answer)
-    return [int(c) for c in citations]
+def main():
+    import argparse
+    import json
+    from retriever import retrieve
+    from reranker import rerank
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--query", required=True)
+    parser.add_argument("--k", type=int, default=5)
+    args = parser.parse_args()
+    docs = retrieve(args.query, k=20)
+    ranked = rerank(args.query, docs, top_k=args.k)
+    print(generate_answer(args.query, ranked))
 
 
 if __name__ == "__main__":
-    # Test
-    test_chunks = [
-        ("Self-attention allows transformers to weigh the importance of different tokens.", 
-         {"title": "Attention Is All You Need", "authors": ["Vaswani et al."], "published": "2017"}, 0.9),
-        ("Multi-head attention uses multiple attention heads in parallel.",
-         {"title": "BERT: Pre-training", "authors": ["Devlin et al."], "published": "2019"}, 0.8),
-    ]
-    
-    answer = synthesize_answer("How do transformers work?", test_chunks)
-    print("Generated answer:")
-    print(answer)
-    print(f"\nCitations: {extract_citations(answer)}")
+    main()
