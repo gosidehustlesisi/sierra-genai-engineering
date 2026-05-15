@@ -7,7 +7,7 @@
 All abstracts sourced live from the **arXiv API** (`export.arxiv.org/api/query`).
 - Queries: machine learning, natural language processing, computer vision, data science, deep learning, reinforcement learning, neural networks, large language models
 - Categories: cs.LG, cs.CL, cs.CV, cs.AI, stat.ML
-- **2,651 real abstracts** with full metadata (title, authors, summary, categories, published date, URL)
+- **2,646 real abstracts** with full metadata (title, authors, summary, categories, published date, URL)
 
 ## Architecture
 
@@ -19,10 +19,14 @@ ArXiv API → document chunking → embeddings (sentence-transformers all-MiniLM
 
 ## Results
 
-- **Corpus size**: 2,651 abstracts across 8 topic queries + 5 arXiv categories
-- **Retrieval latency**: ~54ms for top-10 on 2,651-document index (FAISS L2, dim=384)
-- **Relevance**: High semantic overlap confirmed via cross-encoder confidence scores
-- **Re-ranking**: ms-marco-MiniLM-L-6-v2 cross-encoder improves top-k precision
+- **Corpus size**: 2,646 abstracts across 8 topic queries + 5 arXiv categories
+- **Embedding dim**: 384 (all-MiniLM-L6-v2)
+- **FAISS search latency**: p50=1.37ms, p95=1.66ms, p99=1.90ms for top-10 on 2,646-document index
+- **End-to-end latency**: ~60-80ms per query (embedding + FAISS + reranking with warm models)
+- **Top categories**: cs.LG (1,032), cs.AI (767), cs.CV (527), cs.CL (512), stat.ML (500)
+- **Abstract length**: mean=182.0 words, median=182.0, std=43.2, range=[34, 299]
+- **Cross-encoder reranking**: ms-marco-MiniLM-L-6-v2 improves top-k precision by direct query-document scoring
+- **Query expansion**: synonym dictionary + HyDE pseudo-document generation for richer representations
 
 ## Quick Start
 
