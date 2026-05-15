@@ -20,17 +20,17 @@
 | 1 | **arXiv Abstracts Analysis** | Academic NLP | TF-IDF, Keyword Frequency, Timeline Analysis | arXiv API (cs.LG, cs.AI, cs.CL) | 450 papers | ✅ Complete |
 | 2 | **SCOTUS Opinions Analysis** | Legal NLP | Text Length Trends, Topic Distribution, Term Frequency | Supreme Court majority opinions (public domain) | 15 landmark cases | ✅ Complete |
 | 3 | **PubMed Research Analysis** | Medical NLP | Response Rate Analysis, Biomarker Volcano Plots, Epidemiology Scatter | PubMed / clinical trial registries | 42 records (20 trials + 12 biomarkers + 10 epidemiology) | ✅ Complete |
-| 4 | **AI-Ready MLOps** | ML Infrastructure | Model Registry, Drift Detection, A/B Testing, Auto-Retraining | Census ACS + BLS + arXiv APIs | 3 production models | ✅ Complete |
-| 5 | **LLM Document Classification** | Enterprise NLP | TF-IDF + Random Forest, Logistic Regression, Confidence Scoring | ArXiv + PubMed + Wikipedia APIs | 991 documents | ✅ Complete |
-| 6 | **RAG Knowledge Base** | Retrieval-Augmented Generation | FAISS Indexing, Cross-Encoder Reranking, Semantic Search | arXiv API (8 topic queries) | 2,651 abstracts | ✅ Complete |
+| 4 | **LLM Document Classification** | Enterprise NLP | TF-IDF + Random Forest, Logistic Regression, Confidence Scoring | ArXiv + PubMed + Wikipedia APIs | 991 documents | ✅ Complete |
+| 5 | **RAG Knowledge Base** | Retrieval-Augmented Generation | FAISS Indexing, Cross-Encoder Reranking, Semantic Search | arXiv API (8 topic queries) | 2,651 abstracts | ✅ Complete |
+| — | **AI-Ready MLOps** *(Infrastructure Template)* | ML Infrastructure | Model Registry, Drift Detection, A/B Testing, Auto-Retraining | Census ACS + BLS + arXiv APIs | Plug your own data | 🏗️ Reusable Template |
 
-**Total**: 6 production projects | 12+ notebooks | 4,154 real documents/records | 0 synthetic data
+**Total**: 5 production projects | 12+ notebooks | 4,154 real documents/records | 0 synthetic data
 
 ---
 
 ## 📊 Real Data Sources
 
-### arXiv API (Projects 1, 4, 5, 6)
+### arXiv API (Projects 1, 4, 5)
 - **Source**: `http://export.arxiv.org/api/query`
 - **Categories**: cs.LG, cs.AI, cs.CL, cs.CV, stat.ML
 - **License**: arXiv.org perpetual, nonexclusive license
@@ -41,17 +41,17 @@
 - **License**: U.S. Government Works — Public Domain
 - **What it is**: 15 landmark majority opinions — real legal texts, not summaries
 
-### PubMed / Clinical Trials (Projects 3, 5)
+### PubMed / Clinical Trials (Projects 3, 4)
 - **Source**: PubMed E-utilities (`eutils.ncbi.nlm.nih.gov`)
 - **License**: Public domain / open access
 - **What it is**: Immunotherapy drug trial outcomes, cancer biomarker data, epidemiology records
 
-### Wikipedia API (Project 5)
+### Wikipedia API (Project 4)
 - **Source**: MediaWiki REST API (`en.wikipedia.org/api/rest_v1/`)
 - **License**: CC BY-SA 3.0
 - **What it is**: Legal and financial encyclopedia articles for document classification corpus
 
-### U.S. Census + BLS (Project 4)
+### U.S. Census + BLS (Infrastructure Template)
 - **Census ACS**: `https://api.census.gov/data/2022/acs/acs5` — state-level demographics
 - **BLS**: `https://api.bls.gov/publicAPI/v2/timeseries/data/` — employment time series
 - **License**: U.S. Government Works — Public Domain
@@ -82,7 +82,7 @@
 |-----------|---------|
 | **Matplotlib / Seaborn** | Static charts |
 | **Plotly** | Interactive visualizations |
-| **Streamlit** | Dashboards (MLOps monitor, RAG search, document classifier) |
+| **Streamlit** | Dashboards (document classifier, RAG search, MLOps monitor) |
 
 ---
 
@@ -94,8 +94,6 @@ Data Ingestion Layer:
   arXiv API → Document Store
   PubMed API → Document Store
   Wikipedia API → Document Store
-  Census ACS → Feature Store
-  BLS API → Feature Store
 
 NLP Processing Layer:
   Document Store → TF-IDF Vectorization
@@ -108,7 +106,7 @@ Model Layer:
   Embeddings → FAISS Index
   Embeddings → Cross-Encoder Reranker
 
-MLOps Layer:
+MLOps Layer (Reusable Template):
   Classifiers → Model Registry (SQLite)
   Predictions → Drift Detector (KS + PSI)
   Models → A/B Test Router
@@ -152,30 +150,32 @@ sierra-genai-engineering/
 │   │   ├── figures/
 │   │   └── README.md
 │   │
-│   ├── ai-ready-mlops/                   # Project 4
-│   │   ├── src/
-│   │   │   ├── retrain_pipeline.py
-│   │   │   ├── drift_detector.py
-│   │   │   └── model_registry.py
-│   │   ├── notebooks/
-│   │   ├── dashboard.py
-│   │   └── README.md
-│   │
-│   ├── llm-document-classification/      # Project 5
+│   ├── llm-document-classification/      # Project 4
 │   │   ├── src/
 │   │   │   ├── download_documents.py
 │   │   │   ├── train_classifier.py
 │   │   │   └── evaluate_model.py
 │   │   ├── notebooks/
+│   │   ├── data/
 │   │   ├── dashboard.py
 │   │   └── README.md
 │   │
-│   └── rag-knowledge-base/               # Project 6
+│   ├── rag-knowledge-base/               # Project 5
+│   │   ├── src/
+│   │   │   ├── download_corpus.py
+│   │   │   ├── embeddings.py
+│   │   │   ├── retriever.py
+│   │   │   └── rag_pipeline.py
+│   │   ├── notebooks/
+│   │   ├── data/
+│   │   ├── dashboard.py
+│   │   └── README.md
+│   │
+│   └── ai-ready-mlops/                   # Infrastructure Template
 │       ├── src/
-│       │   ├── download_corpus.py
-│       │   ├── embeddings.py
-│       │   ├── retriever.py
-│       │   └── rag_pipeline.py
+│       │   ├── retrain_pipeline.py
+│       │   ├── drift_detector.py
+│       │   └── model_registry.py
 │       ├── notebooks/
 │       ├── dashboard.py
 │       └── README.md
@@ -191,7 +191,7 @@ sierra-genai-engineering/
 
 1. **Executive Summary**: See `portfolio-report.pdf` for business impact metrics
 2. **Notebook Demos**: Each project has executable notebooks with real outputs
-3. **Live Dashboards**: Streamlit apps for MLOps monitor, RAG search, and document classifier
+3. **Live Dashboards**: Streamlit apps for document classifier, RAG search, and MLOps monitor
 
 ### For Technical Reviewers
 
@@ -218,15 +218,14 @@ streamlit run projects/ai-ready-mlops/dashboard.py
 
 | Metric | Count |
 |--------|-------|
-| **Projects** | 6 |
+| **Production Projects** | 5 |
+| **Infrastructure Templates** | 1 |
 | **NLP Pipelines** | 4 |
 | **RAG Systems** | 1 |
-| **MLOps Frameworks** | 1 |
 | **Live Data APIs** | 5 |
 | **Documents Analyzed** | 4,154+ |
 | **Classification Accuracy** | 89.45% (Logistic Regression) |
 | **RAG Retrieval Latency** | 54ms (top-10 on 2,651 docs) |
-| **Models Versioned** | 3 (with drift detection + A/B testing) |
 | **Dashboards** | 3 Streamlit apps |
 
 ---
@@ -239,13 +238,13 @@ Most GenAI portfolios stop at "ChatGPT wrapper" demos. This portfolio demonstrat
 
 **The Focus:**
 - **"Real Data"** = Every document comes from a live API or public domain source
-- **"Production"** = MLOps pipeline with drift detection, A/B testing, auto-retraining
-- **"Measurable"** = Classification accuracy, retrieval latency, model versioning metrics
+- **"Production"** = End-to-end pipelines with real notebooks, real metrics, real outputs
+- **"Measurable"** = Classification accuracy, retrieval latency, corpus statistics
 
 ### Target Audience
 
 - **Primary**: Hiring managers evaluating NLP/GenAI engineering candidates
-- **Secondary**: Technical leads assessing MLOps and RAG implementation depth
+- **Secondary**: Technical leads assessing RAG implementation depth
 - **Tertiary**: Fellow practitioners seeking reference implementations
 
 ---
@@ -270,4 +269,4 @@ All code, notebooks, and documentation are licensed under the **MIT License** un
 
 ---
 
-**Last Updated**: May 2026 | **Status**: Production-Ready | **Version**: 2.0
+**Last Updated**: May 2026 | **Status**: Production-Ready | **Version**: 2.1
