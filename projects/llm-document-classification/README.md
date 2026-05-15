@@ -29,17 +29,24 @@ Organizations process thousands of unstructured documents daily — research pap
   - Interactive Streamlit dashboard
 
 ## 📊 Results
-- **Corpus:** 991 real documents from 3 live APIs
-  - ArXiv: 358 scientific/financial abstracts
-  - PubMed: 414 medical abstracts  
-  - Wikipedia: 219 legal/financial articles
+- **Corpus:** 968 real documents from 3 live APIs
+  - ArXiv: 455 scientific/financial abstracts
+  - PubMed: 414 medical abstracts
+  - Wikipedia: 99 legal/financial articles
+- **TF-IDF Features:** 5,000 (unigrams + bigrams)
 - **Classification Accuracy:**
-  - Logistic Regression: **89.45%** (F1-macro: 0.864)
-  - Random Forest: **86.43%** (F1-macro: 0.832)
+  - Logistic Regression: **91.24%** (F1-macro: 0.887)
+  - Random Forest: **86.08%** (F1-macro: 0.798)
+- **Cross-Validation (5-fold):**
+  - Logistic Regression: **91.12%** (+/- 0.031)
+  - Random Forest: **86.06%** (+/- 0.025)
 - **Per-Class F1 (Logistic Regression):**
-  - Medical: **0.976** | Scientific: **0.879** | Legal: **0.900** | Financial: **0.702**
+  - Medical: **0.976** | Scientific: **0.902** | Legal: **0.941** | Financial: **0.731**
+- **Per-Class F1 (Random Forest):**
+  - Medical: **0.958** | Scientific: **0.857** | Legal: **0.875** | Financial: **0.500**
 - **Pipeline:** End-to-end orchestration with one command
 - **Dashboard:** Interactive Streamlit demo with live predictions
+- **Notebooks:** Fully executed EDA + modeling notebooks with real output
 
 ## 🚀 How to Run
 
