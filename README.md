@@ -80,193 +80,78 @@
 ### Visualization / UI
 | Technology | Purpose |
 |-----------|---------|
-| **Matplotlib / Seaborn** | Static charts |
-| **Plotly** | Interactive visualizations |
-| **Streamlit** | Dashboards (document classifier, RAG search, MLOps monitor) |
+| **Matplotlib / Seaborn** | Static plots, academic-quality figures |
+| **Plotly** | Interactive dashboards |
+| **Streamlit** | Rapid UI prototyping |
 
 ---
 
-## 🏗️ Architecture
-
-### System Overview
-```
-Data Ingestion Layer:
-  arXiv API → Document Store
-  PubMed API → Document Store
-  Wikipedia API → Document Store
-
-NLP Processing Layer:
-  Document Store → TF-IDF Vectorization
-  Document Store → sentence-transformers Embeddings
-  Document Store → spaCy Tokenization
-
-Model Layer:
-  TF-IDF → Random Forest Classifier
-  TF-IDF → Logistic Regression
-  Embeddings → FAISS Index
-  Embeddings → Cross-Encoder Reranker
-
-MLOps Layer (Reusable Template):
-  Classifiers → Model Registry (SQLite)
-  Predictions → Drift Detector (KS + PSI)
-  Models → A/B Test Router
-
-Application Layer:
-  Model Registry → Streamlit Dashboard
-  FAISS Index → RAG Search UI
-  Classifiers → Document Classifier
-```
-
----
-
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```
 sierra-genai-engineering/
-│
-├── 📄 README.md                          ← You are here
-├── 📄 LICENSE                            ← MIT License
-│
-├── 🔧 projects/
-│   ├── arxiv-abstracts/                  # Project 1
-│   │   ├── notebooks/
-│   │   │   └── arxiv_analysis.ipynb
-│   │   ├── src/
-│   │   ├── data/
+├── notebooks/                          # ← Top-level EDA notebooks (NEW)
+│   ├── 01_arxiv_classifier_research_engine.ipynb
+│   ├── 02_pubmed_research.ipynb
+│   └── 03_scotus_opinions.ipynb
+├── projects/
+│   ├── arxiv-abstracts/
+│   │   ├── data/                       # 493 real arXiv papers (CSV + JSON)
+│   │   ├── notebooks/                  # Project-specific analysis
 │   │   ├── figures/
-│   │   └── README.md
-│   │
-│   ├── scotus-opinions/                  # Project 2
+│   │   └── fetch_arxiv_data.py
+│   ├── scotus-opinions/
+│   │   ├── data/                       # 15 SCOTUS cases (JSON)
 │   │   ├── notebooks/
-│   │   │   └── scotus_analysis.ipynb
-│   │   ├── data/
-│   │   ├── figures/
-│   │   └── README.md
-│   │
-│   ├── pubmed-research/                  # Project 3
+│   │   └── figures/
+│   ├── pubmed-research/
+│   │   ├── data/                       # 42 biomedical records (JSON)
 │   │   ├── notebooks/
-│   │   │   └── pubmed_analysis.ipynb
-│   │   ├── data/
-│   │   ├── figures/
-│   │   └── README.md
-│   │
-│   ├── llm-document-classification/      # Project 4
+│   │   └── figures/
+│   ├── llm-document-classification/
+│   │   ├── data/                       # 991 classified documents
+│   │   ├── notebooks/
 │   │   ├── src/
-│   │   │   ├── download_documents.py
-│   │   │   ├── train_classifier.py
-│   │   │   └── evaluate_model.py
+│   │   └── dashboard.py
+│   ├── rag-knowledge-base/
+│   │   ├── data/                       # 2,651 abstracts + FAISS index
 │   │   ├── notebooks/
-│   │   ├── data/
-│   │   ├── dashboard.py
-│   │   └── README.md
-│   │
-│   ├── rag-knowledge-base/               # Project 5
 │   │   ├── src/
-│   │   │   ├── download_corpus.py
-│   │   │   ├── embeddings.py
-│   │   │   ├── retriever.py
-│   │   │   └── rag_pipeline.py
-│   │   ├── notebooks/
-│   │   ├── data/
-│   │   ├── dashboard.py
-│   │   └── README.md
-│   │
-│   └── ai-ready-mlops/                   # Infrastructure Template
-│       ├── src/
-│       │   ├── retrain_pipeline.py
-│       │   ├── drift_detector.py
-│       │   └── model_registry.py
+│   │   └── dashboard.py
+│   └── ai-ready-mlops/
 │       ├── notebooks/
-│       ├── dashboard.py
-│       └── README.md
-│
-└── 📊 portfolio-report.pdf               ← Executive summary
+│       ├── src/
+│       └── dashboard.py
+├── src/                                # Shared utilities
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### For Recruiters & Hiring Managers
-
-1. **Executive Summary**: See `portfolio-report.pdf` for business impact metrics
-2. **Notebook Demos**: Each project has executable notebooks with real outputs
-3. **Live Dashboards**: Streamlit apps for document classifier, RAG search, and MLOps monitor
-
-### For Technical Reviewers
-
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/gosidehustlesisi/sierra-genai-engineering.git
 cd sierra-genai-engineering
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run any project
-jupyter notebook projects/arxiv-abstracts/notebooks/arxiv_analysis.ipynb
+# Run any top-level notebook
+jupyter notebook notebooks/01_arxiv_classifier_research_engine.ipynb
 
-# Or launch a dashboard
-streamlit run projects/llm-document-classification/dashboard.py
-streamlit run projects/rag-knowledge-base/dashboard.py
-streamlit run projects/ai-ready-mlops/dashboard.py
+# Or run project-specific pipelines
+cd projects/arxiv-abstracts && python fetch_arxiv_data.py
 ```
 
 ---
 
-## 📊 Quick Stats
+## 📜 License
 
-| Metric | Count |
-|--------|-------|
-| **Production Projects** | 5 |
-| **Infrastructure Templates** | 1 |
-| **NLP Pipelines** | 4 |
-| **RAG Systems** | 1 |
-| **Live Data APIs** | 5 |
-| **Documents Analyzed** | 4,154+ |
-| **Classification Accuracy** | 89.45% (Logistic Regression) |
-| **RAG Retrieval Latency** | 54ms (top-10 on 2,651 docs) |
-| **Dashboards** | 3 Streamlit apps |
+MIT — See [LICENSE](LICENSE)
 
 ---
 
-## 🎯 Brand Positioning
-
-### Why This Portfolio?
-
-Most GenAI portfolios stop at "ChatGPT wrapper" demos. This portfolio demonstrates production NLP infrastructure — from data ingestion through model registry to deployment monitoring.
-
-**The Focus:**
-- **"Real Data"** = Every document comes from a live API or public domain source
-- **"Production"** = End-to-end pipelines with real notebooks, real metrics, real outputs
-- **"Measurable"** = Classification accuracy, retrieval latency, corpus statistics
-
-### Target Audience
-
-- **Primary**: Hiring managers evaluating NLP/GenAI engineering candidates
-- **Secondary**: Technical leads assessing RAG implementation depth
-- **Tertiary**: Fellow practitioners seeking reference implementations
-
----
-
-## 🔗 External Links
-
-| Platform | URL |
-|----------|-----|
-| 💻 **Portfolio Website** | [e3-ai.com](https://e3-ai.com) |
-| 🐙 **GitHub** | `https://github.com/gosidehustlesisi/sierra-genai-engineering` |
-| 💼 **LinkedIn** | `https://linkedin.com/in/sierran` |
-| 🌐 **Company** | [e3-ai.com](https://e3-ai.com) |
-
----
-
-## 📝 License
-
-All code, notebooks, and documentation are licensed under the **MIT License** unless otherwise specified.
-
-> *"The best time to build GenAI systems was yesterday. The second best time is now."*
-> — **Sierra Napier, The AI Architect**
-
----
-
-**Last Updated**: May 2026 | **Status**: Production-Ready | **Version**: 2.1
+**Built by Sierra Napier** | [e3-ai.com](https://e3-ai.com) | Data-driven. Documented. Deployable.
